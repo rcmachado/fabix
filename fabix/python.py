@@ -17,9 +17,8 @@ get_config = partial(get_config, 'python')
 
 
 @fab.task
-def install(force=False):
+def install(version, force=False):
     """Install python"""
-    version = get_config()['version']
 
     install_dir = os.path.join(_INSTALL_DIR, 'python', version)
     python_bin = os.path.join(install_dir, 'bin', 'python')
@@ -51,10 +50,8 @@ def _python_bin_path(py_version, bin_name='python'):
 
 
 @fab.task
-def install_setuptools(force=False):
+def install_setuptools(py_version, force=False):
     """Install setuptools"""
-    py_version = get_config()['version']
-
     easy_install_bin = _python_bin_path(py_version, 'easy_install')
     if cuisine.file_exists(easy_install_bin):
         if not force:
@@ -117,10 +114,8 @@ def uninstall():
 
 
 @fab.task
-def install_pip():
+def install_pip(py_version):
     """Install pip latest version."""
-    py_version = get_config()['version']
-
     fab.puts("Installing pip for python {0}".format(py_version))
     easy_install_bin = _python_bin_path(py_version, 'easy_install')
 
@@ -132,10 +127,8 @@ def install_pip():
 
 
 @fab.task
-def install_pypi_package(package, use_virtualenv=True):
+def install_pypi_package(py_version, package, use_virtualenv=True):
     """Install pypi package `package` on python `py_version`."""
-    py_version = get_config()['version']
-
     fab.puts("Installing pypi package {0} on python {1}".format(package, py_version))
 
     if use_virtualenv:
