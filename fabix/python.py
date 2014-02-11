@@ -8,7 +8,7 @@ from fabix import get_config, get_project_name
 
 _INSTALL_DIR = '/opt'
 PYTHON_DOWNLOAD_URL = 'http://www.python.org/ftp/python/{version}/Python-{version}.tgz'
-SETUPTOOLS_DOWNLOAD_URL = 'http://pypi.python.org/packages/source/s/setuptools/setuptools-0.6c11.tar.gz'
+SETUPTOOLS_DOWNLOAD_URL = 'https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py'
 SITES_DIR = '/data/sites/'
 
 
@@ -55,27 +55,21 @@ def install_setuptools(force=False):
     """Install setuptools"""
     py_version = get_config()['version']
 
-    easy_install_bin = _python_bin_path(py_version, 'easy_install')
-    if cuisine.file_exists(easy_install_bin):
+    pip_bin = _python_bin_path(py_version, 'pip')
+    if cuisine.file_exists(pip_bin):
         if not force:
-            fab.puts("easy_install for python {0} found, skipping installation".format(py_version))
+            fab.puts("pip for python {0} found, skipping installation".format(py_version))
             return
         else:
             fab.puts("Reinstalling easy_install for python {0}".format(py_version))
-
-    major, minor = py_version.split('.')[0:2]
-    version = "{0}.{1}".format(major, minor)
 
     python_bin = _python_bin_path(py_version)
 
     src_dir = fab.run('mktemp -d')
     with fab.cd(src_dir):
-        fab.puts("Downloading setuptools for python {0}".format(version))
-        download_url = SETUPTOOLS_DOWNLOAD_URL.format(py_version=version)
-        fab.run("wget -q '{0}' -O - | tar xz".format(download_url))
-        with fab.cd('setuptools-*'):
-            fab.puts("Installing setuptools for python {0}".format(version))
-            fab.sudo("{0} setup.py install".format(python_bin))
+        fab.puts("Installing setuptools")
+        fab.run('wget {} -O - | {}'.format(SETUPTOOLS_DOWNLOAD_URL,
+                                           python_bin))
     fab.sudo('rm -rf {0}'.format(src_dir))
 
 
